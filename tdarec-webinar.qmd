@@ -1,0 +1,49 @@
+---
+title: "Modular, interoperable, and extensible topological data analysis in R"
+author:
+  - name: Jason Cory Brunson
+    affiliations:
+      - ref: uf
+    corresponding: true
+  - name: Aymeric Stamm
+    affiliations: 
+      - ref: lmjl
+affiliations:
+  - id: lmjl
+    name: UMR CNRS 6629, Nantes University, Ecole Centrale de Nantes
+    department: Department of Mathematics Jean Leray
+    city: Nantes
+    country: France
+  - id: uf
+    name: University of Florida
+    department: Laboratory for Systems Medicine, Division of Pulmonary, Critical Care, and Sleep Medicine
+    city: Gainesville
+    country: United States
+date: 2025-07-31
+format: revealjs
+revealjs-plugins:
+  - drop
+css: style.css
+---
+
+# Introduction
+
+## Topological Data Analysis
+
+## The TDAverse
+
+# {ripserr}
+
+# {phutil}
+
+# {tdarec}
+
+# {inphr}
+
+# Concluding remarks
+
+## Wrapping up
+
+## Future works
+
+## How should package collections interact with each other
