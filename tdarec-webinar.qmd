@@ -19,31 +19,48 @@ affiliations:
     department: Laboratory for Systems Medicine, Division of Pulmonary, Critical Care, and Sleep Medicine
     city: Gainesville
     country: United States
-date: 2025-07-31
+date: today
+date-format: "YYYY MMMM D"
 format: revealjs
 revealjs-plugins:
   - drop
 css: style.css
 ---
 
-# Introduction
+# Introductions
 
-## Topological Data Analysis
+# Topological Data Analysis (in R)
 
-## The TDAverse
+## What is topological data analysis?
 
-# {ripserr}
+## How can R users do TDA?
 
-# {phutil}
+# The TDAverse
 
-# {tdarec}
+## Statement of need
 
-# {inphr}
+## Design principles
 
-# Concluding remarks
+(How should package collections interact with each other)
 
-## Wrapping up
+## Past & Future
 
-## Future works
+(Present is the subject of the rest of the webinar.)
 
-## How should package collections interact with each other
+# Illustrations
+
+## Engines: {TDA} and {ripserr}
+
+## Utilities: {TDA} and {phutil}
+
+## Recipes: {TDAvec} and {tdarec}
+
+## Inference: {fdatest} and {inphr}
+
+# Invitations
+
+## Communicate
+
+(Report bugs, request features, etc.)
+
+## Contribute
