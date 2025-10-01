@@ -21,10 +21,17 @@ affiliations:
     country: United States
 date: today
 date-format: "YYYY MMMM D"
-format: revealjs
+format:
+  revealjs:
+    slide-number: true
+    smaller: true
+    code-annotations: hover
+    echo: true
+    code-copy: false
 revealjs-plugins:
   - drop
 css: style.css
+lightbox: true
 ---
 
 # Introductions
@@ -52,6 +59,330 @@ css: style.css
 ## Engines: {TDA} and {ripserr}
 
 ## Utilities: {TDA} and {phutil}
+
+::: {.callout-note title="Goal of the package"}
+- Low-level package that defines a unifying toolbox for handling persistent homology data;
+- Stands for **P**ersistent **H**omology **Util**ities.
+
+Current features:
+
+- A 'persistence' class to store a single persistent diagram;
+- A 'persistence_set' class to store collections of persistent diagrams as a list of 'persistence' objects;
+- Functions to compute distances between persistence diagrams.
+:::
+
+::: {layout-ncol="3"}
+![CRAN Webpage](images/phutil-cran-annotated.png){fig-align="center" width="92%" #fig-phutil-cran}
+
+![GitHub Repository](images/phutil-github-annotated.png){fig-align="center" width="80%" #fig-phutil-github}
+
+![Website](images/phutil-website-annotated.png){fig-align="center" width="69%" #fig-phutil-website}
+:::
+
+## The persistence class
+
+::: {.callout-tip title="Decision-making process"}
+- What are the most common ways to represent persistent homology data? (e.g. output of various packages, but also Python libraries or C++ libraries)
+- What are the most common operations on persistent homology data? (e.g. plotting, computing distances, etc.)
+- What are the most common use cases? (e.g. TDA + statistical analysis)
+- Trade-offs between memory efficiency, speed, and ease of use.
+- Integration within machine learning pipelines.
+:::
+
+::: {.fragment}
+::: {.callout-note title="Structure of the class"}
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(phutil) # <1>
+```
+1. The package contains data sets for demonstration and testing purposes such as `arch_spirals`, a list of 24 persistence diagrams computed from samples of points in the plane forming two interlocking spirals.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(arch_spirals[[1]]) # <2>
+```
+2. Each element in `arch_spirals` is of class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+names(arch_spirals[[1]]) # <3>
+```
+3. A persistence object is a list with two elements: `pairs` and `metadata`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+str(arch_spirals[[1]]$pairs) # <4>
+```
+4. The `pairs` element is a list of matrices containing birth-death pairs for each homological dimension.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+str(arch_spirals[[1]]$metadata) # <5>
+```
+5. The `metadata` element is a list containing information about how the data was computed.
+:::
+:::
+:::
+
+## S3 methods for persistence objects
+
+Dependencies: {cli} for pretty printing.
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+arch_spirals[[1]] # <1>
+```
+1. Print a persistence object. Calls the `print()` method which in turn calls `format()`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+arch_spirals[[1]] |> 
+  as.matrix() |> # <2>
+  head()
+```
+2. Coerce a persistence object to a matrix.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+arch_spirals[[1]] |> 
+  as.data.frame() |> # <3>
+  head()
+```
+3. Coerce a persistence object to a data.frame.
+:::
+
+## S3 methods for persistence objects
+
+Dependencies: {cli} for pretty printing.
+
+We can coerce objects of class 'diagram' as produced by `TDA::*Diag()` functions to class `persistence`:
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(TDA) # <1>
+```
+1. Load the {TDA} package.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_spl <- torusUnif(300, a = 1.8, c = 5) # <2>
+```
+2. Sample 300 points from a torus in $R^3$.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_dgm <- ripsDiag( # <3>
+  torus_spl, 
+  maxdimension = 1, 
+  maxscale = 2
+)$diagram
+```
+3. Compute the Vietoris-Rips persistence diagram up to dimension 1 and scale 2.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(torus_dgm) # <4>
+```
+4. The output is of class 'diagram'.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers <- as_persistence(torus_dgm) # <5>
+```
+5. Coerce the diagram to class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(torus_pers) # <6>
+```
+6. The output is now of class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers # <7>
+```
+7. Print the persistence object.
+:::
+
+## S3 methods for persistence objects
+
+Dependencies: {cli} for pretty printing.
+
+We can coerce objects of class 'PHom' as produced by `ripserr::vietoris_rips()` to class `persistence`:
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(ripserr) # <1>
+```
+1. Load the {ripserr} package.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_dgm <- vietoris_rips( # <2>
+  torus_spl, 
+  dim = 1, 
+  thresh = 2
+)
+```
+2. Compute the Vietoris-Rips persistence diagram up to dimension 1 and scale 2.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(torus_dgm) # <3>
+```
+3. The output is of class 'PHom'.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers <- as_persistence(torus_dgm) # <4>
+```
+4. Coerce the diagram to class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(torus_pers) # <5>
+```
+5. The output is now of class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers # <6>
+```
+6. Print the persistence object.
+:::
+
+## S3 methods for persistence objects
+
+Dependencies: {cli} for pretty printing.
+
+We can coerce objects of class 'hclust' as produced by `stats::hclust()` to class `persistence`:
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(stats) # <1>
+```
+1. Load the {stats} package.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+hc <- hclust(dist(torus_spl)) # <2>
+```
+2. Compute a hierarchical clustering of the torus sample.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(hc) # <3>
+```
+3. The output is of class 'hclust'.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers <- as_persistence(hc) # <4>
+```
+4. Coerce the hierarchical clustering to class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+class(torus_pers) # <5>
+```
+5. The output is now of class `persistence`.
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+torus_pers # <6>
+```
+6. Print the persistence object.
+:::
+
+## Distances between persistence diagrams
+
+The following distances between persistence diagrams have been implemented:
+
+::: {.incremental}
+- the bottleneck distance;
+- the p-Wasserstein distance;
+:::
+
+illustrate via code snippets and output
+
+dependencies: [*Hera*](https://github.com/anigmetov/hera) C++ library. The latter library is bundled within {phutil} which required a `LinkingTo` dependency on [{BH}](https://dirk.eddelbuettel.com/code/bh.html) for providing access to the Boost headers for Hera compilation.
 
 ## Recipes: {TDAvec} and {tdarec}
 
