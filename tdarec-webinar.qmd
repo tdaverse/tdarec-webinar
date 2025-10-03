@@ -40,6 +40,44 @@ lightbox: true
 
 ## What is topological data analysis?
 
+_Topology_ is a branch of mathematics at the interface of _geometry_ and _analysis_.
+
+* **Geometry** is the study of rigid shapes (angle, curvature, distance).
+* **Analysis** is the study of continuity (limits).
+* **Topology** is the study of properties of shapes that are invariant under continuous deformations: $$\text{Topology} \, = \, \text{Geometry} \,\, / \,\, \text{Analysis}$$
+
+**Topological data analysis (TDA)** draws on principles, tools, results, and intuitions from topology to analyze data.
+
+TDA may be understood to comprise many diverse, and some classical techniques:
+
+* shape-preserving subsampling
+* nearest neighbor prediction models
+* manifold learning (Isomap, t-SNE, UMAP)
+* discrete morse theory
+* Mapper(-like constructions)
+
+But the core of TDA is _persistent homology_.
+
+## Persistent homology
+
+Text.
+
+:::: {.columns}
+
+
+
+::: {.column width="40%"}
+
+:::
+
+::: {.column width="40%"}
+
+(Inset the {ggtda} animation.)
+
+:::
+
+::::
+
 ## How can R users do TDA?
 
 # The TDAverse
