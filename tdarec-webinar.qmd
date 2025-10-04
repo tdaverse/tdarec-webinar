@@ -51,7 +51,7 @@ _Topology_ is a branch of mathematics at the interface of _geometry_ and _analys
 TDA may be understood to comprise many diverse, and some classical techniques:
 
 * shape-preserving subsampling
-* nearest neighbor prediction models
+* nearest neighbor prediction
 * manifold learning (Isomap, t-SNE, UMAP)
 * discrete morse theory
 * Mapper(-like constructions)
@@ -80,17 +80,158 @@ Text.
 
 ## How can R users do TDA?
 
-# The TDAverse
+unitl recently (and my impression), 3 bins:
 
-## Statement of need
+* tool-specific (ripserr, simplextree, kernelTDA)
+* analysis-specific (TDAstats, TDApplied)
+* general-purpose (TDA, TDAkit)
+
+problems
+
+* sensitive to upgrades
+* independent (not designed to be interoperable)
+* hidden, hence duplicated, dependencies
+
+# The TDAverse
 
 ## Design principles
 
-(How should package collections interact with each other)
+**Accessible**: Show, don't tell.
+
+Why?
+
+- Minimize user pain.
+- Improve user feedback.
+- Empower new developers.
+
+How?
+
+- Use expressive function and argument names.
+- Cram packages with examples and vignettes.
+- Document for contribution as well as use.
+
+**Opinionated**: Induce good practice.
+
+Why?
+
+- Improve the quality and reliability of work.
+- Reduce burdens on reviewers.
+
+How?
+
+- Adopt appropriate defaults.
+- Make standard operations and recommended choices less effortful.
+
+**Modular**: Do one thing, and do it well.
+
+Why?
+
+- Make packages easier to maintain and upgrade.
+- Contain disruptions due to upgrades and breaking changes.
+
+How?
+
+- Put unrelated routines and separable analysis steps in different packages.
+- Limit each package to one "tier" (computational tool, analysis procedure, extension).
+
+**Extensible**:
+
+Why?
+
+- Ease incorporation of new methods.
+- Reduce burdens on developers.
+
+How?
+
+- Adopt shared standards.
+- State and justify the scope of each package.
+
+**Interoperable**: 
+
+Why?
+
+- Reduce burdens on learners & users.
+- Enable efficient workflows.
+
+How?
+
+- Unify structures and conventions across packages.
+- Co-extend with other package collections (tidyverse, tidymodels, mlr3).
+
+::: {.callout-note title="Goal of the package"}
+
+Our design principles are inspired by those of other package collections and our own experiences, in particular constraints on the availability of specialists and enthusiasts of a niche area.
+
+:::
 
 ## Past & Future
 
-(Present is the subject of the rest of the webinar.)
+:::: {.columns}
+
+::: {.column width="40%"}
+
+### Timeline
+
+**2018**
+
+- RW publishes {TDAstats}, reviewed by JCB
+- MP writes {Mapper}
+
+**2019**
+
+- RW and JCB write {ggtda}
+
+**2020**
+
+- RW spins {ripserr} off {TDAstats}
+- MP spins {simplextree} off {Mapper}
+- JCB authors {tdaunif}
+
+**2021**
+
+- RW presents at ????
+
+**2022**
+
+- JCB presents at useR!
+- RW, MP, and JCB inaugurate the "TDAverse"
+- JO writes {TDAvis}
+- RW, JCB, and JO combine {ggtda} and {TDAvis}
+
+**2023**
+
+- AS publishes {rgudhi}
+
+**2024**
+
+- JCB and AS request & receive R Consortium support for {tdarec} & {inphr}
+
+:::
+
+::: {.column width="40%"}
+
+### Aspirations
+
+**Packages in development**
+
+- {ggtda}: {ggplot2} extension for persistence data
+- {plt}: binding to the `Persistence Landscapes Toolbox` C++ library
+- {rgp}: binding to the `ReebGraphPairing` Java program
+- {landmark}: shape-preserving subsampling methods
+
+**Packages in incubation**
+
+- {pheng}: engine deployment for persistent homology
+- {phrou}: bindings to common routines
+
+**Packages in limbo**
+
+- {Mapper}: R6 classes for mapper constructions
+- {Cover}: R6 classes for topological covers
+
+:::
+
+::::
 
 # Illustrations
 
