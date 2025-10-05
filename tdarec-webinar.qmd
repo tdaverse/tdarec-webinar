@@ -78,6 +78,24 @@ Text.
 
 ::::
 
+## Applications of PH
+
+**(examples from previous presentation)**
+
+### and many, many more...
+
+Check out the Database of Original & Non-theoretical Uses of Topology (DONUT) at <https://donut.topology.rocks/>.
+
+## Applications of PH
+
+**diagram: needs on left, requirements on right**
+
+(statistical inference & machine learning)
+require
+(local approximation & asymptotic guarantees & back-propagation)
+require
+(kernel density estimation & central limit theorems & vectorization)
+
 ## How can R users do TDA?
 
 unitl recently (and my impression), 3 bins:
@@ -210,7 +228,7 @@ Our design principles are inspired by those of other package collections and our
 
 ::: {.column width="40%"}
 
-### Aspirations
+### Aspirations (MOVE THIS TO END?)
 
 **Packages in development**
 
@@ -236,6 +254,23 @@ Our design principles are inspired by those of other package collections and our
 # Illustrations
 
 ## Engines: {TDA} and {ripserr}
+
+(Adapt demo script.)
+
+## Upgrades
+
+### Completed through ISC
+
+* Substitute Ripser v1.2.1 source code for v1.0.1
+* Preserve _essential pairs_ (topological features with deaths at infinity)
+* Allow multivariable time series; infer sliding window duration from frequency
+* Enable superlevel persistent homology of rasters
+
+### Supported by ISC (in progress)
+
+* Increase precision from float to double
+* Alternative fields of coefficients
+* Representative cycles & cocycles
 
 ## Utilities: {TDA} and {phutil}
 
