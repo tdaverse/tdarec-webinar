@@ -80,7 +80,12 @@ Text.
 
 ## Applications of PH
 
-**(examples from previous presentation)**
+* predict seizures from EEG activity
+* forecast extreme weather events
+* measure arterial complexity associated with pulmonary hypertension
+* measure lobular structure in glomerular capillaries
+* classify marine upwelling from surface temperature maps
+* grade tumor risk based on CT scans
 
 ### and many, many more...
 
