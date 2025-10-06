@@ -36,56 +36,118 @@ lightbox: true
 
 # Introductions
 
+:::: {.columns}
+
+::: {.column width="40%"}
+
+![Aymeric Stamm](images/intro-aymeric.jpg)
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="42%"}
+
+![Jason Cory Brunson](images/intro-cory.jpg)
+
+:::
+
+::::
+
 # Topological Data Analysis (in R)
 
 ## What is topological data analysis?
 
 _Topology_ is a branch of mathematics at the interface of _geometry_ and _analysis_.
 
+::: {.fragment}
 * **Geometry** is the study of rigid shapes (angle, curvature, distance).
-* **Analysis** is the study of continuity (limits).
+* **Analysis** is the study of limits (continuity, smoothness).
 * **Topology** is the study of properties of shapes that are invariant under continuous deformations: $$\text{Topology} \, = \, \text{Geometry} \,\, / \,\, \text{Analysis}$$
+:::
+
+## What is topological data analysis?
 
 **Topological data analysis (TDA)** draws on principles, tools, results, and intuitions from topology to analyze data.
 
-TDA may be understood to comprise many diverse, and some classical techniques:
+::: {.fragment}
+TDA comprises both cutting-edge and classical techniques:
 
-* shape-preserving subsampling
 * nearest neighbor prediction
 * manifold learning (Isomap, t-SNE, UMAP)
-* discrete morse theory
 * Mapper(-like constructions)
 
 But the core of TDA is _persistent homology_.
+:::
 
 ## Persistent homology
 
-Text.
-
 :::: {.columns}
 
-
-
 ::: {.column width="40%"}
+
+You've probably encountered 0-dimensional persistent homology before.
+
+... better known as _hierarchical clustering_.
+
+::: {.fragment}
+---
+
+See [Mémoli & Singhal (2019)](https://link.springer.com/article/10.1007/s11538-019-00614-z) for a theoretical primer.
+
+![](images/title-memoli2019.jpg)
+:::
 
 :::
 
-::: {.column width="40%"}
-
-(Inset the {ggtda} animation.)
-
+::: {.column width="60%"}
+![Created with {ggtda} and {animate}.](images/ggtda-hclust-animation.gif)
 :::
 
 ::::
 
-## Applications of PH
+## Persistent homology
 
-* predict seizures from EEG activity
-* forecast extreme weather events
-* measure arterial complexity associated with pulmonary hypertension
-* measure lobular structure in glomerular capillaries
-* classify marine upwelling from surface temperature maps
-* grade tumor risk based on CT scans
+:::: {.columns}
+
+::: {.column width="40%"}
+Persistent homology tracks not only
+
+* connected components
+
+but also
+
+* loops (see figure),
+* cells,
+
+and
+
+* higher-dimensional enclosures.
+:::
+
+::: {.column width="60%"}
+![Created with {ggtda} and {animate}.](images/ggtda-phom-animation.gif)
+:::
+
+::::
+
+## Applications of persistent homology
+
+:::: {.columns}
+::: {.column width="33%"}
+![](images/title-ibanezmarcelo2019.jpg)
+![](images/title-tymochko2020.jpg)
+:::
+::: {.column width="33%"}
+![](images/title-leykam2022.jpg)
+![](images/title-miller2023.jpg)
+:::
+::: {.column width="33%"}
+![](images/title-conti2023.jpg)
+:::
+::::
 
 ### and many, many more...
 
@@ -103,83 +165,77 @@ require
 
 ## How can R users do TDA?
 
-unitl recently (and my impression), 3 bins:
+We perceive 3 types of R package for TDA:
 
 * tool-specific (ripserr, simplextree, kernelTDA)
 * analysis-specific (TDAstats, TDApplied)
-* general-purpose (TDA, TDAkit)
+* general-purpose (TDA, TDAkit, rgudhi)
 
-problems
+Each meets certain needs, but they form a fragile ecosystem:
 
-* sensitive to upgrades
-* independent (not designed to be interoperable)
-* hidden, hence duplicated, dependencies
+* duplication of methods
+* hidden dependencies
+* sensitivity to upgrades
+* difficulty coupling
 
 # The TDAverse
 
+:::: {.columns}
+
+::: {.column width="20%"}
+![Raoul Wadhwa](images/team-raoul.jpg){ height=200 }
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="20%"}
+![Matt Piekenbrock](images/team-matt.jpg){ height=200 }
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="20%"}
+![James Otto](images/team-james.jpg){ height=200 }
+:::
+
+::::
+
 ## Design principles
 
-**Accessible**: Show, don't tell.
+:::: {.columns}
+::: {.column width="50%"}
 
-Why?
+::: {.callout-tip title="Accessible" icon=false}  
+Empower users to learn and request.
 
-- Minimize user pain.
-- Improve user feedback.
-- Empower new developers.
+* Expressive names
+* Density of examples
+:::
 
-How?
+::: {.callout-tip title="Opinionated" icon=false}  
+Reduce burdens on collaborators & reviewers.
 
-- Use expressive function and argument names.
-- Cram packages with examples and vignettes.
-- Document for contribution as well as use.
+* Evidence/practice-based defaults
+* Alert to any non-standard choices
+:::
 
-**Opinionated**: Induce good practice.
+:::
+::: {.column width="50%"}
 
-Why?
+::: {.callout-tip title="Modular" icon=false}  
+Ease maintenance, contributions, and extensions.
 
-- Improve the quality and reliability of work.
-- Reduce burdens on reviewers.
+* Different packages for different tasks
+* Different packages for different steps
+:::
 
-How?
+::: {.callout-tip title="Interoperable" icon=false}  
+Reduce burdens on learners & programmers.
 
-- Adopt appropriate defaults.
-- Make standard operations and recommended choices less effortful.
+* Unified structures & conventions
+* Co-extensions with other collections
+:::
 
-**Modular**: Do one thing, and do it well.
-
-Why?
-
-- Make packages easier to maintain and upgrade.
-- Contain disruptions due to upgrades and breaking changes.
-
-How?
-
-- Put unrelated routines and separable analysis steps in different packages.
-- Limit each package to one "tier" (computational tool, analysis procedure, extension).
-
-**Extensible**:
-
-Why?
-
-- Ease incorporation of new methods.
-- Reduce burdens on developers.
-
-How?
-
-- Adopt shared standards.
-- State and justify the scope of each package.
-
-**Interoperable**: 
-
-Why?
-
-- Reduce burdens on learners & users.
-- Enable efficient workflows.
-
-How?
-
-- Unify structures and conventions across packages.
-- Co-extend with other package collections (tidyverse, tidymodels, mlr3).
+:::
+::::
 
 ::: {.callout-note title="Goal of the package"}
 
@@ -187,80 +243,13 @@ Our design principles are inspired by those of other package collections and our
 
 :::
 
-## Past & Future
-
-:::: {.columns}
-
-::: {.column width="40%"}
-
-### Timeline
-
-**2018**
-
-- RW publishes {TDAstats}, reviewed by JCB
-- MP writes {Mapper}
-
-**2019**
-
-- RW and JCB write {ggtda}
-
-**2020**
-
-- RW spins {ripserr} off {TDAstats}
-- MP spins {simplextree} off {Mapper}
-- JCB authors {tdaunif}
-
-**2021**
-
-- RW presents at ????
-
-**2022**
-
-- JCB presents at useR!
-- RW, MP, and JCB inaugurate the "TDAverse"
-- JO writes {TDAvis}
-- RW, JCB, and JO combine {ggtda} and {TDAvis}
-
-**2023**
-
-- AS publishes {rgudhi}
-
-**2024**
-
-- JCB and AS request & receive R Consortium support for {tdarec} & {inphr}
-
-:::
-
-::: {.column width="40%"}
-
-### Aspirations (MOVE THIS TO END?)
-
-**Packages in development**
-
-- {ggtda}: {ggplot2} extension for persistence data
-- {plt}: binding to the `Persistence Landscapes Toolbox` C++ library
-- {rgp}: binding to the `ReebGraphPairing` Java program
-- {landmark}: shape-preserving subsampling methods
-
-**Packages in incubation**
-
-- {pheng}: engine deployment for persistent homology
-- {phrou}: bindings to common routines
-
-**Packages in limbo**
-
-- {Mapper}: R6 classes for mapper constructions
-- {Cover}: R6 classes for topological covers
-
-:::
-
-::::
-
 # Illustrations
 
 ## Engines: {TDA} and {ripserr}
 
-(Adapt demo script.)
+TODO: Adapt demo script.
+
+TODO: Mimic "S3 methods for persistence objects" slide.
 
 ## Upgrades
 
@@ -612,6 +601,8 @@ dependencies: [*Hera*](https://github.com/anigmetov/hera) C++ library. The latte
 ## Communicate
 
 (Report bugs, request features, etc.)
+
+TODO: Point to repo <https://github.com/tdaverse/tdaverse>
 
 ## Contribute
 
