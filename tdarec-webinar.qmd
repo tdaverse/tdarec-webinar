@@ -30,8 +30,8 @@ format:
     code-copy: false
 revealjs-plugins:
   - drop
-css: style.css
 lightbox: true
+bibliography: references.bib
 ---
 
 # Introductions
@@ -380,15 +380,11 @@ Current features:
 ## The persistence class
 
 ::: {.callout-tip title="Decision-making process"}
-- What are the most common ways to represent persistent homology data? (e.g. output of various packages, but also Python libraries or C++ libraries)
-- What are the most common operations on persistent homology data? (e.g. plotting, computing distances, etc.)
-- What are the most common use cases? (e.g. TDA + statistical analysis)
-- Trade-offs between memory efficiency, speed, and ease of use.
-- Integration within machine learning pipelines.
+- Most common ways to represent persistent homology data? (e.g. existing R, Python and C/C++ libraries)
+- Most common operations on persistent homology data? (e.g. plotting, computing distances, etc.)
+- Trade-offs between memory efficiency, speed, and ease of use for statistical analysis?
+- Easy integration within machine learning pipelines.
 :::
-
-::: {.fragment}
-::: {.callout-note title="Structure of the class"}
 
 ::: {.fragment .fade-in-then-semi-out}
 ```{r}
@@ -434,12 +430,10 @@ str(arch_spirals[[1]]$metadata) # <5>
 ```
 5. The `metadata` element is a list containing information about how the data was computed.
 :::
-:::
-:::
 
-## S3 methods for persistence objects
+## Handling persistence objects
 
-Dependencies: {cli} for pretty printing.
+Coerce persistence objects **to** other common formats:
 
 ::: {.fragment .fade-in-then-semi-out}
 ```{r}
@@ -472,11 +466,9 @@ arch_spirals[[1]] |>
 3. Coerce a persistence object to a data.frame.
 :::
 
-## S3 methods for persistence objects
+## Handling persistence objects
 
-Dependencies: {cli} for pretty printing.
-
-We can coerce objects of class 'diagram' as produced by `TDA::*Diag()` functions to class `persistence`:
+Coerce **from** objects of class 'diagram' produced by `TDA::*Diag()` functions, objects of class 'PHom' produced by `ripserr::vietoris_rips()` and objects of class 'hclust' produced by `stats::hclust()`.
 
 ::: {.fragment .fade-in-then-semi-out}
 ```{r}
@@ -545,7 +537,7 @@ torus_pers # <7>
 7. Print the persistence object.
 :::
 
-## S3 methods for persistence objects
+## Handling persistence objects {visibility="hidden"}
 
 Dependencies: {cli} for pretty printing.
 
@@ -609,7 +601,7 @@ torus_pers # <6>
 6. Print the persistence object.
 :::
 
-## S3 methods for persistence objects
+## Handling persistence objects {visibility="hidden"}
 
 Dependencies: {cli} for pretty printing.
 
@@ -669,18 +661,74 @@ torus_pers # <6>
 6. Print the persistence object.
 :::
 
-## Distances between persistence diagrams
+## Distances between diagrams
 
-The following distances between persistence diagrams have been implemented:
-
-::: {.incremental}
-- the bottleneck distance;
-- the p-Wasserstein distance;
+::: {.callout-note title="Dependencies"}
+- [*Hera*](https://github.com/anigmetov/hera) C++ library **bundled** within {phutil};
+- [{BH}](https://dirk.eddelbuettel.com/code/bh.html) as a `LinkingTo` dependency for providing access to the Boost headers for built-in Hera compilation.
+- [OpenMP](https://www.openmp.org/) for parallelization (optional; enabled at installation if available).
 :::
 
-illustrate via code snippets and output
+::: {.callout-note title="Implemented distances^[<https://tdaverse.github.io/phutil/articles/validation-benchmark.html>]"}
 
-dependencies: [*Hera*](https://github.com/anigmetov/hera) C++ library. The latter library is bundled within {phutil} which required a `LinkingTo` dependency on [{BH}](https://dirk.eddelbuettel.com/code/bh.html) for providing access to the Boost headers for Hera compilation.
+:::: {.columns}
+
+::: {.column width="80%"}
+- The $p$-Wasserstein distance:
+$W_p^q (X, Y) = \inf_{\varphi : X \to Y} \left( \sum_{x \in X} \left\| x - \varphi(x) \right\|_q^p \right)^{1/p}$
+- The bottleneck distance:
+$W_\infty^q (X, Y) = \inf_{\varphi : X \to Y} \left( \sup_{x \in X} \left\| x - \varphi(x) \right\|_q \right)$
+
+where $X$ and $Y$ are two persistence diagrams, $\varphi$ is a bijection between the points of $X$ and $Y$ (including points on the diagonal), and $\| \cdot \|_q$ is the $q$-norm in the plane.
+
+Available functions: `bottleneck_distance()`, `wasserstein_distance()`, `bottleneck_pairwise_distances` and `wasserstein_pairwise_distances()`.
+:::
+
+::: {.column width="20%"}
+![](images/phutil-distance.png){fig-align="center" width="100%"}
+:::
+::::
+
+:::
+
+## Distances between diagrams
+
+```r
+tdaunif::sample_trefoil(n = 1000, sd = 0.1)
+tdaunif::sample_arch_spiral(n = 1000, sd = 0.1, arms = 2)
+```
+
+![Sampling within two different geometries: 24 point clouds of size 1000 for each geometry.](images/phutil-distance-point-clouds.png){fig-align="center" width="70%" #fig-phutil-distance-point-clouds}
+
+## Distances between diagrams
+
+```r
+TDA::ripsDiag( ... ) # on each point cloud
+ph_set <- phutil::as_persistence_set(c(trefoils, arch_spirals))
+```
+
+![An overview of the persistence set: for each sample, we show the first 5 persistence diagrams computed via `TDA::ripsDiag()` and visualized with {ggtda}.](images/phutil-distance-pds.png){fig-align="center" width="92%" #fig-phutil-distance-pds}
+
+## Distances between diagrams
+
+```r
+D <- wasserstein_pairwise_distances(
+  ph_set,        # A list of persistence objects
+  p = 2,         # The order of the Wasserstein distance
+  dimension = 0, # The homological dimension to consider
+  ncores = 12    # The number of CPU cores to use
+)
+```
+
+![Within- and between-block matrix representation of the pairwise distances between persistence diagrams.](images/phutil-distance-matrix.png){fig-align="center" width="30%" #fig-phutil-distance-matrix}
+
+## Distances between diagrams
+
+```r
+P <- cmdscale(D, k = 2)
+```
+
+![Multidimensional scaling projection of the persistence diagrams.](images/phutil-distance-mds.png){fig-align="center" width="69%" #fig-phutil-distance-mds}
 
 ## Recipes: {tdarec}
 
@@ -847,14 +895,320 @@ grid_regular(ts_fin, levels = 5)
 
 ## Inference: {inphr}
 
+::: {.callout-note title="Existing packages"}
+- [{TDA}](https://cran.r-project.org/package=TDA) focuses on statistical analysis of PH and density clustering by providing an R interface for the efficient algorithms of the C++ libraries [GUDHI](https://project.inria.fr/gudhi/software/), [Dionysus](https://www.mrzv.org/software/dionysus/) and [PHAT](https://bitbucket.org/phat-code/phat/src/master/). This package also implements methods from @fasy2014confidence and @chazal2014stochastic for analyzing the statistical significance of PH features.
+- [{TDAstats}](https://cran.r-project.org/package=TDAstats) provides a comprehensive toolset for conducting TDA, specifically via the calculation of PH in a Vietoris-Rips complex [@wadhwa2018tdastats].
+- [{TDAkit}](https://cran.r-project.org/package=TDAkit) provides a variety of algorithms to learn with PH of the data based on functional summaries for clustering, hypothesis testing, and visualization [@wasserman2018topological].
+:::
+
+::: {.callout-caution title="Limitations"}
+- {TDA} only deal with inference on a single diagram using bootstrap resampling
+- {TDAstats} only offers inference to compare two diagrams by permutations
+- {TDAkit} only compares functional summaries of groups of persistence diagrams to answer whether they come from the same underlying distribution.
+:::
+
+## Inference: {fdatest} and {inphr}
+
+::: {.callout-note title="Goal of the package"}
+The goal of {inphr} is to deal with **comparing populations of persistence diagrams coming from data sets of different types**. This is classically called the task of making inference on the basis of some collected data. It aims at offering two sets of functions for making inference:
+
+- in the space of persistence diagrams for testing whether multiple collections of persistence diagrams come from the same underlying distribution;
+- in functional spaces for localizing differences between multiple collections of persistence diagrams on the domain of some functional summary of them.
+:::
+
+::: {.callout-tip title="Current features"}
+- `two_sample_diagram_test()`: a permutation test for comparing two collections of persistence diagrams based on the $p$-Wasserstein distance; this is achieved by permuting the rows and columns of the distance matrix to compute the empirical distribution of one or more test statistics based on inter-point distances [@lovato2021multiscale];
+- `two_sample_functional_test()`: a permutation test for comparing two collections of persistence diagrams based on some functional summary of them; this is achieved using the interval-wise testing procedure of @pini2017interval.
+:::
+
+## Inference: {fdatest} and {inphr}
+
+![A schematic view of {inphr}'s dependencies.](images/inphr-deps.png){fig-align="center" width="80%"}
+
+## Inference: {fdatest} and {inphr}
+
+::: {.callout-note title="Simulated point clouds"}
+We illustrate the use of {inphr} for comparing two collections of 24 persistence diagrams computed from point clouds sampled along the same archimedean spiral with different amounts of noise.
+
+```{r}
+#| echo: false
+#| label: fig-inphr-spirals
+#| fig-cap: "Point clouds sampled from an archimedean spiral with different amounts of noise."
+#| out-width: "70%"
+#| fig-align: center
+library(inphr)
+library(ggfortify)
+library(ggtda)
+
+row_label_1 <- patchwork::wrap_elements(
+  panel = grid::textGrob(expression(sigma == 0.05), rot = 270)
+)
+row_label_2 <- patchwork::wrap_elements(
+  panel = grid::textGrob(expression(sigma == 0.10), rot = 270)
+)
+
+set.seed(1234)
+n <- 1000
+nrep <- 24
+# Sample two collections of point clouds
+low_noise <- lapply(1:nrep, function(i) {
+  tdaunif::sample_arch_spiral(n, sd = 0.05, arms = 2)
+})
+high_noise <- lapply(1:nrep, function(i) {
+  tdaunif::sample_arch_spiral(n, sd = 0.10, arms = 2)
+})
+
+# Visualize a few samples
+low_noise_pts_plots <- purrr::map(low_noise[1:5], \(.x) {
+  .x |>
+    as.data.frame() |>
+    ggplot(aes(x, y)) +
+    geom_point() +
+    theme_minimal() +
+    theme(
+      axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank()
+    ) +
+    coord_fixed()
+})
+high_noise_pts_plots <- purrr::map(high_noise[1:5], \(.x) {
+  .x |>
+    as.data.frame() |>
+    ggplot(aes(x, y)) +
+    geom_point() +
+    theme_minimal() +
+    theme(
+      axis.title = element_blank(),
+      axis.text = element_blank(),
+      axis.ticks = element_blank()
+    ) +
+    coord_fixed()
+})
+
+patchwork::wrap_plots(
+  c(
+    c(low_noise_pts_plots, list(row_label_1)),
+    c(high_noise_pts_plots, list(row_label_2))
+  ),
+  nrow = 2L
+) +
+  patchwork::plot_layout(widths = c(rep(1, 5), 0.2))
+```
+:::
+
+## Inference: {fdatest} and {inphr}
+
+::: {.callout-note title="Corresponding persistence diagrams"}
+We compute the Vietoris-Rips persistence diagrams up to dimension 1 and scale 2 for each point cloud using `TDA::ripsDiag()`. We then visualize 5 persistence diagrams from each collection using {ggtda}.
+
+```{r}
+#| echo: false
+#| label: fig-inphr-diagrams
+#| fig-cap: "Persistence diagrams computed from point clouds sampled from an archimedean spiral with different amounts of noise."
+#| out-width: "70%"
+#| fig-align: center
+# Compute persistence diagrams
+low_noise_dgms <- lapply(low_noise, function(x) {
+  TDA::ripsDiag(x, maxdimension = 1, maxscale = 2)$diagram
+})
+high_noise_dgms <- lapply(high_noise, function(x) {
+  TDA::ripsDiag(x, maxdimension = 1, maxscale = 2)$diagram
+})
+# Coerce to 'persistence' objects
+low_noise_pers <- lapply(low_noise_dgms, phutil::as_persistence)
+high_noise_pers <- lapply(high_noise_dgms, phutil::as_persistence)
+# Combine into a 'persistence_set' object
+ph_set <- phutil::as_persistence_set(c(low_noise_pers, high_noise_pers))
+
+prox <- 1
+
+low_noise_plts <- purrr::map(low_noise_pers[1:5], \(.x) {
+  pd <- as.data.frame(.x)
+  pd$dimension <- factor(pd$dimension, levels = 0:2)
+  max_prox <- max(pd$death)
+  pd |>
+    ggplot() +
+    coord_fixed() +
+    stat_persistence(
+      aes(
+        start = birth,
+        end = death,
+        colour = dimension,
+        shape = dimension
+      ),
+      show.legend = TRUE
+    ) +
+    geom_abline(slope = 1) +
+    labs(x = "Birth", y = "Death", color = "Dimension", shape = "Dimension") +
+    lims(x = c(0, max_prox), y = c(0, max_prox)) +
+    scale_color_discrete(drop = FALSE) +
+    scale_linetype_discrete(drop = FALSE) +
+    scale_shape_discrete(drop = FALSE) +
+    theme_persist()
+})
+
+high_noise_plts <- purrr::map(high_noise_pers[1:5], \(.x) {
+  pd <- as.data.frame(.x)
+  pd$dimension <- factor(pd$dimension, levels = 0:2)
+  max_prox <- max(pd$death)
+  pd |>
+    ggplot() +
+    coord_fixed() +
+    stat_persistence(
+      aes(
+        start = birth,
+        end = death,
+        colour = dimension,
+        shape = dimension
+      ),
+      show.legend = TRUE
+    ) +
+    geom_abline(slope = 1) +
+    labs(x = "Birth", y = "Death", color = "Dimension", shape = "Dimension") +
+    lims(x = c(0, max_prox), y = c(0, max_prox)) +
+    scale_color_discrete(drop = FALSE) +
+    scale_linetype_discrete(drop = FALSE) +
+    scale_shape_discrete(drop = FALSE) +
+    theme_persist()
+})
+
+patchwork::wrap_plots(
+  c(
+    c(low_noise_plts, list(row_label_1)),
+    c(high_noise_plts, list(row_label_2))
+  ),
+  nrow = 2L
+) +
+  patchwork::plot_layout(guides = "collect", widths = c(rep(1, 5), 0.2)) &
+  theme(legend.position = "bottom")
+```
+:::
+
+## Inference: {fdatest} and {inphr}
+
+::: {.callout-note title="Two-sample diagram test"}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```{r}
+#| eval: false
+diag_test_dim0 <- two_sample_diagram_test( # <1>
+  x = low_noise_pers,  # First sample of persistence diagrams
+  y = high_noise_pers, # Second sample of persistence diagrams
+  dimension = 0,       # Homological dimension to consider
+  ncores = 12          # Number of CPU cores to use
+)
+```
+1. By default, it uses the 2-Wasserstein distance, test statistics based on pairwise distances that mimic Student and Fisher statistics proposed by @lovato2021multiscale and 1000 permutations.
+:::
+
+::: {.column width="50%"}
+```{r}
+#| eval: false
+diag_test_dim1 <- two_sample_diagram_test(
+  x = low_noise_pers,
+  y = high_noise_pers,
+  dimension = 1,
+  ncores = 12
+)
+```
+:::
+
+::::
+
+```{r}
+#| echo: false
+#| layout-ncol: 2
+diag_test_dim0 <- readRDS("data/diag_test_dim0.rds")
+diag_test_dim0
+diag_test_dim1 <- readRDS("data/diag_test_dim1.rds")
+diag_test_dim1
+```
+:::
+
+::: {.callout-note title="Two-sample functional test"}
+
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| eval: false
+func_test_dim0 <- two_sample_functional_test( # <1>
+  x = low_noise_pers,      # First sample of persistence diagrams
+  y = high_noise_pers,     # Second sample of persistence diagrams
+  dimension = 0,           # Homological dimension to consider
+  representation = "betti" # Functional summary to use
+)
+```
+1. By default, it uses Betti curves as functional summaries on a common grid of 100 points spanning the range of filtration values observed in both samples, the interval-wise testing procedure of @pini2017interval with 1000 permutations and adjusts p-values to control the family-wise error rate using the closed testing procedure.
+:::
+::: {.column width="50%"}
+```{r}
+#| eval: false
+func_test_dim1 <- two_sample_functional_test(
+  x = low_noise_pers,
+  y = high_noise_pers,
+  dimension = 1,
+  representation = "betti"
+)
+```
+:::
+::::
+
+```{r}
+#| echo: false
+#| label: fig-inphr-functional-test
+#| fig-cap: "Results of the two-sample functional test based on Betti curves."
+#| fig-subcap:
+#|   - "Dimension 0<br>Betti curves"
+#|   - "Dimension 0<br>Adjusted p-values"
+#|   - "Dimension 1<br>Betti curves"
+#|   - "Dimension 1<br>Adjusted p-values"
+#| out-width: "70%"
+#| fig-align: center
+#| results: hold
+#| layout-ncol: 4
+library(fdatest)
+oldpar <- par(oma = rep(0, 4))
+func_test_dim0 <- readRDS("data/func_test_dim0.rds")
+plot(func_test_dim0$iwt)
+func_test_dim1 <- readRDS("data/func_test_dim1.rds")
+plot(func_test_dim1$iwt)
+par(oldpar)
+```
+:::
+
 # Invitations
 
-## Communicate
+## Connecting multiple universes
 
-(Report bugs, request features, etc.)
+![](images/tdaverse-and-other-universes.png){fig-align="center" width="80%"}
 
-TODO: Point to repo <https://github.com/tdaverse/tdaverse>
+## Future developments
 
-## Contribute
+::: {.callout-note title="Ongoing ideas"}
 
-developer job vs user job
+Packages in development
+
+: - {ggtda}: {ggplot2} extension for persistence data
+- {plt}: binding to the `Persistence Landscapes Toolbox` C++ library
+- {rgp}: binding to the `ReebGraphPairing` Java program
+- {landmark}: shape-preserving subsampling methods
+
+Packages in incubation
+
+: - {pheng}: engine deployment for persistent homology
+- {phrou}: bindings to common routines
+
+Packages in limbo
+
+: - {Mapper}: R6 classes for mapper constructions
+- {Cover}: R6 classes for topological covers
+:::
+
+::: {.callout-tip title="Contributing to the TDAverse"}
+Most packages are listed under the [TDAverse GitHub organisation](https://github.com/tdaverse). If you want to contribute to the development of any of these packages, please contact the maintainers via GitHub issues or email to report bugs, request features, suggest improvements, or propose contributions via pull requests.
+:::
+
+## References
