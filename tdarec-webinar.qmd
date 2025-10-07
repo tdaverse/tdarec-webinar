@@ -239,7 +239,17 @@ Reduce burdens on learners & programmers.
 :::
 ::::
 
-These design principles are inspired by those of other package collections and by our own experiences as enthusiasts, users, and developers in a niche area.
+These principles are inspired by those of other package collections and by our own experiences as enthusiasts, users, and developers in a niche area.
+
+## Current goals
+
+One view of our focus recently:
+
+::: {.r-stack}
+![](images/stack-diagram-1.png){width="800"}
+
+![](images/stack-diagram-2.png){.fragment width="800"}
+:::
 
 # Illustrations
 
@@ -263,21 +273,67 @@ Current features:
 
 ## Validation and benchmark
 
-::: {.fragment .semi-fade-out}
+We compare the results and runtimes of 3 engines on a non-trivial point cloud:
+
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
+#| fig-height: 6
 library(ripserr)
+library(ggplot2)
+set.seed(860294)
+x <- tdaunif::sample_klein_flat(
+  n = 120, ar = 1.5, sd = .1
+)
+r_max <- max(dist(x)) / 2 + .001
+pairs(x, asp = 1)
 ```
 :::
-
-TODO: Copy benchmark code.
 
 ::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
+#| echo: !expr c(1,2,3,5,6)
+x.diagram <- TDA::ripsDiag(
+  x, maxdimension = 2, maxscale = r_max
+)
+x.phom <- vietoris_rips(
+  x, max_dim = 2, threshold = r_max
+)
+old_par <- par(mfrow = c(1, 2))
+TDA:::plot.diagram(
+  x.diagram$diagram, asp = 1, diagLim = c(0, 2)
+)
+TDA:::plot.diagram(
+  x.phom, asp = 1, diagLim = c(0, 2)
+)
+par(old_par)
+```
+:::
 
+## Validation and benchmark
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+vr_bench <- bench::mark(
+  `Dionysus | TDA` = TDA::ripsDiag(
+    x, maxdimension = 2, maxscale = r_max,
+    library = "Dionysus"
+  ),
+  `GUDHI | TDA` = TDA::ripsDiag(
+    x, maxdimension = 2, maxscale = r_max,
+    library = "GUDHI"
+  ),
+  `Ripser | ripserr` = vietoris_rips(
+    x, max_dim = 2, threshold = r_max
+  ),
+  min_iterations = 6, check = FALSE
+)
+vr_bench |> subset(select = c(1, 3:5))
 ```
 :::
 
@@ -285,13 +341,13 @@ TODO: Copy benchmark code.
 ```{r}
 #| output-location: column
 #| results: hold
-
+autoplot(vr_bench)
 ```
 :::
 
 ## Use case
 
-::: {.fragment .semi-fade-out}
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
@@ -751,21 +807,14 @@ Current features:
 
 ## Recipe steps
 
-::: {.fragment .semi-fade-out}
-```{r}
-#| output-location: column
-#| results: hold
-library(ripserr)
-library(tidymodels)
-library(tdarec)
-```
-:::
-
 ::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
-#| echo: !expr c(2,3)
+#| echo: !expr c(1:3, 5:6)
+library(ripserr)
+library(tidymodels)
+library(tdarec)
 op <- par(mfrow = c(1, 2), mar = c(1, 1, 1, 1) + 0.1)
 image(powehi, 
   col = hcl.colors(
@@ -800,11 +849,20 @@ bh_rec0 |>
 
 ## Recipe steps
 
-::: {.fragment .semi-fade-out}
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
-( bh_rec1 <- step_pd_raster(bh_rec0, img) )
+bh_rec0 |> 
+  step_pd_raster(img) |> 
+  print() -> bh_rec1
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
 bh_rec1 |> 
   prep() |> 
   bake(new_data = blackholes)
@@ -817,7 +875,8 @@ bh_rec1 |>
 #| results: hold
 #| echo: !expr c(2,3,4)
 op <- par(mfrow = c(1, 2), mar = c(2, 4, 2, 2) + 0.1)
-bh_bake1 <- bake(prep(bh_rec1), new_data = blackholes)
+bh_bake1 <-
+  bake(prep(bh_rec1), new_data = blackholes)
 TDA:::plot.diagram(bh_bake1$img[[1]], asp = 1)
 TDA:::plot.diagram(bh_bake1$img[[2]], asp = 1)
 par(op)
@@ -830,10 +889,19 @@ par(op)
 ```{r}
 #| output-location: column
 #| results: hold
-bh_rec2 <- step_vpd_tent_template_functions(
-  bh_rec1, img,
-  hom_degree = 1, tent_shift = tune()
-)
+bh_rec1 |> 
+  step_vpd_tent_template_functions(
+    img,
+    hom_degree = 1, tent_shift = tune()
+  ) |> 
+  print() -> bh_rec2
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
 bh_rec2 |> 
   finalize_recipe(list(tent_shift = 10)) |> 
   prep() |> 
@@ -843,11 +911,18 @@ bh_rec2 |>
 
 ## Tunable dials
 
-::: {.fragment .semi-fade-out}
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| output-location: column
 #| results: hold
 extract_parameter_set_dials(bh_rec1)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
 extract_parameter_set_dials(bh_rec2)
 ```
 :::
@@ -884,7 +959,7 @@ grid_regular(ts_fin, levels = 5)
 ::: {.column width="30%"}
 ![](images/team-umar.jpg){ height=300 }
 :::
-::: {.column width="10%"}
+::: {.column width="5%"}
 :::
 ::: {.column width="30%"}
 ![](images/team-aleksei.jpeg){ height=300 }
