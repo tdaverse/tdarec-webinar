@@ -75,9 +75,10 @@ _Topology_ is a branch of mathematics at the interface of _geometry_ and _analys
 ::: {.fragment}
 TDA comprises both cutting-edge and classical techniques:
 
+* cluster analysis
 * nearest neighbor prediction
-* manifold learning (Isomap, t-SNE, UMAP)
 * Mapper(-like constructions)
+* manifold learning (Isomap, t-SNE, UMAP)
 
 But the core of TDA is _persistent homology_.
 :::
@@ -95,7 +96,7 @@ You've probably encountered 0-dimensional persistent homology before.
 ::: {.fragment}
 ---
 
-See [Mémoli & Singhal (2019)](https://link.springer.com/article/10.1007/s11538-019-00614-z) for a theoretical primer.
+See [Mémoli & Singhal (2019)](https://link.springer.com/article/10.1007/s11538-019-00614-z) for a theoretical primer that makes this precise.
 
 ![](images/title-memoli2019.jpg)
 :::
@@ -115,16 +116,16 @@ See [Mémoli & Singhal (2019)](https://link.springer.com/article/10.1007/s11538-
 ::: {.column width="40%"}
 Persistent homology tracks not only
 
-* connected components
+0. connected components
 
 but also
 
-* loops (see figure),
-* cells,
+1. loops (see figure),
+2. cells,
 
 and
 
-* higher-dimensional enclosures.
+3+. higher-dimensional enclosures.
 :::
 
 ::: {.column width="60%"}
@@ -133,7 +134,7 @@ and
 
 ::::
 
-## Applications of persistent homology
+## Applications of PH
 
 :::: {.columns}
 ::: {.column width="33%"}
@@ -149,34 +150,35 @@ and
 :::
 ::::
 
-### and many, many more...
+### ... are numerous and diverse.
 
-Check out the Database of Original & Non-theoretical Uses of Topology (DONUT) at <https://donut.topology.rocks/>.
+Check out the Database of Original & Non-theoretical Uses of Topology:
 
-## Applications of PH
-
-**diagram: needs on left, requirements on right**
-
-(statistical inference & machine learning)
-require
-(local approximation & asymptotic guarantees & back-propagation)
-require
-(kernel density estimation & central limit theorems & vectorization)
+<https://donut.topology.rocks/>
 
 ## How can R users do TDA?
 
-We perceive 3 types of R package for TDA:
+We see (heretofore) R packages for TDA belonging to 3 types:
 
-* tool-specific (ripserr, simplextree, kernelTDA)
-* analysis-specific (TDAstats, TDApplied)
-* general-purpose (TDA, TDAkit, rgudhi)
+* **routine-specific**<p>
+  (ripserr, simplextree, kernelTDA, TDAvec)
+* **analysis-specific**<p>
+  (TDAstats, TDApplied, ashapesampler, lookout)
+* **general-purpose**<p>
+  (TDA, TDAkit, rgudhi)
 
 Each meets certain needs, but they form a fragile ecosystem:
 
+:::: {.columns}
+::: {.column width="50%"}
 * duplication of methods
 * hidden dependencies
+:::
+::: {.column width="50%"}
 * sensitivity to upgrades
 * difficulty coupling
+:::
+::::
 
 # The TDAverse
 
@@ -237,28 +239,110 @@ Reduce burdens on learners & programmers.
 :::
 ::::
 
-::: {.callout-note title="Goal of the package"}
-
-Our design principles are inspired by those of other package collections and our own experiences, in particular constraints on the availability of specialists and enthusiasts of a niche area.
-
-:::
+These design principles are inspired by those of other package collections and by our own experiences as enthusiasts, users, and developers in a niche area.
 
 # Illustrations
 
-## Engines: {TDA} and {ripserr}
+## Engines: {ripserr}
 
-TODO: Adapt demo script.
+::: {.callout-note title="Goal of the package"}
+- Bindings to Ripser and related C++ libraries for computing persistent homology
 
-TODO: Mimic "S3 methods for persistence objects" slide.
+Current features:
+
+- `vietoris_rips()` binding to Ripser
+- `cubical()` binding to Cubical Ripser
+- Helper functions to pre- and post-process data
+:::
+
+::: {layout-ncol="2"}
+![](images/title-bauer2021.jpg)
+
+![](images/title-kaji2020.jpg)
+:::
+
+## Validation and benchmark
+
+::: {.fragment .semi-fade-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(ripserr)
+```
+:::
+
+TODO: Copy benchmark code.
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+
+```
+:::
+
+## Use case
+
+::: {.fragment .semi-fade-out}
+```{r}
+#| output-location: column
+#| results: hold
+str(ldeaths)
+frequency(ldeaths)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+#| fig-height: 2.5
+#| echo: 2
+op <- par(mar = c(2, 4, 2, 2) + 0.1)
+plot(ldeaths, xlab = NULL)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+ldeaths_swe <- 
+  ripserr:::numeric_vector_to_quasi_attractor(
+    ldeaths,
+    data_dim = 12, dim_lag = 1, sample_lag = 1
+  )
+ldeaths_pca <- prcomp(ldeaths_swe)$x
+( ldeaths_ph <- vietoris_rips(ldeaths) )
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+#| echo: !expr c(2,3)
+par(mfrow = c(1, 2), mar = c(2, 4, 2, 2) + 0.1)
+plot(ldeaths_pca[, 1:2], asp = 1)
+TDA:::plot.diagram(ldeaths_ph, asp = 1)
+```
+:::
 
 ## Upgrades
 
 ### Completed through ISC
 
-* Substitute Ripser v1.2.1 source code for v1.0.1
+* Replace Ripser v1.0.1 with v1.2.1
 * Preserve _essential pairs_ (topological features with deaths at infinity)
-* Allow multivariable time series; infer sliding window duration from frequency
-* Enable superlevel persistent homology of rasters
+* Handle multivariable time series
 
 ### Supported by ISC (in progress)
 
@@ -266,7 +350,13 @@ TODO: Mimic "S3 methods for persistence objects" slide.
 * Alternative fields of coefficients
 * Representative cycles & cocycles
 
-## Utilities: {TDA} and {phutil}
+## Research Assistants
+
+Bindings, enhancements, and other contributions by **Kent Phipps**, **Sean Hershkowitz**, and **Alice Zhang**.
+
+![](images/certificates.jpeg){width=600 fig-align="center"}
+
+## Utilities: {phutil}
 
 ::: {.callout-note title="Goal of the package"}
 - Low-level package that defines a unifying toolbox for handling persistent homology data;
@@ -592,7 +682,43 @@ illustrate via code snippets and output
 
 dependencies: [*Hera*](https://github.com/anigmetov/hera) C++ library. The latter library is bundled within {phutil} which required a `LinkingTo` dependency on [{BH}](https://dirk.eddelbuettel.com/code/bh.html) for providing access to the Boost headers for Hera compilation.
 
-## Recipes: {TDAvec} and {tdarec}
+## Recipes: {tdarec}
+
+::: {.callout-note title="Goal of the package"}
+- Tidymodels extension for persistent homology and its vectorizations
+
+Current features:
+
+- {ripserr}-powered recipe steps to compute persistent homology from data
+- {TDAvec}-powered recipe steps to compute numeric features from persistent diagrams
+- Miscellaneous related pre-processing steps
+- Tunable dials for parameters governing the above
+:::
+
+::: {layout-ncol="2"}
+![](images/title-bauer2021.jpg)
+
+![](images/title-kaji2020.jpg)
+:::
+
+## Collaborators
+
+**Umar Islambekov** and **Aleksei Luchinsky** coordinated development of {TDAvec} with the scope and needs of {tdarec}.
+
+:::: {.columns}
+::: {.column width="10%"}
+:::
+::: {.column width="30%"}
+![](images/team-umar.jpg){ height=300 }
+:::
+::: {.column width="10%"}
+:::
+::: {.column width="30%"}
+![](images/team-aleksei.jpeg){ height=300 }
+:::
+::: {.column width="10%"}
+:::
+::::
 
 ## Inference: {fdatest} and {inphr}
 
