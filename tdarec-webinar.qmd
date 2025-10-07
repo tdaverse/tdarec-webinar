@@ -10,7 +10,7 @@ author:
       - ref: lmjl
 affiliations:
   - id: lmjl
-    name: UMR CNRS 6629, Nantes University, Ecole Centrale de Nantes
+    name: UMR CNRS 6629, Nantes University
     department: Department of Mathematics Jean Leray
     city: Nantes
     country: France
@@ -896,38 +896,45 @@ grid_regular(ts_fin, levels = 5)
 ## Inference: {inphr}
 
 ::: {.callout-note title="Existing packages"}
-- [{TDA}](https://cran.r-project.org/package=TDA) focuses on statistical analysis of PH and density clustering by providing an R interface for the efficient algorithms of the C++ libraries [GUDHI](https://project.inria.fr/gudhi/software/), [Dionysus](https://www.mrzv.org/software/dionysus/) and [PHAT](https://bitbucket.org/phat-code/phat/src/master/). This package also implements methods from @fasy2014confidence and @chazal2014stochastic for analyzing the statistical significance of PH features.
-- [{TDAstats}](https://cran.r-project.org/package=TDAstats) provides a comprehensive toolset for conducting TDA, specifically via the calculation of PH in a Vietoris-Rips complex [@wadhwa2018tdastats].
-- [{TDAkit}](https://cran.r-project.org/package=TDAkit) provides a variety of algorithms to learn with PH of the data based on functional summaries for clustering, hypothesis testing, and visualization [@wasserman2018topological].
+- [{TDA}](https://cran.r-project.org/package=TDA): statistical significance of features in a single diagram [@fasy2014confidence;@chazal2014stochastic] and density clustering using [GUDHI](https://project.inria.fr/gudhi/software/), [Dionysus](https://www.mrzv.org/software/dionysus/) and [PHAT](https://bitbucket.org/phat-code/phat/src/master/);
+- [{TDAstats}](https://cran.r-project.org/package=TDAstats): comprehensive toolset for conducting TDA [@wadhwa2018tdastats];
+- [{TDAkit}](https://cran.r-project.org/package=TDAkit): ML using functional summaries of persistence homology for clustering, hypothesis testing, and visualization [@wasserman2018topological].
 :::
 
 ::: {.callout-caution title="Limitations"}
-- {TDA} only deal with inference on a single diagram using bootstrap resampling
-- {TDAstats} only offers inference to compare two diagrams by permutations
-- {TDAkit} only compares functional summaries of groups of persistence diagrams to answer whether they come from the same underlying distribution.
+- {TDA}: makes inference on a single diagram only;
+- {TDAstats}: compares two diagrams only;
+- {TDAkit}: compares functional summaries only.
 :::
 
-## Inference: {fdatest} and {inphr}
+## Inference: {inphr}
 
 ::: {.callout-note title="Goal of the package"}
-The goal of {inphr} is to deal with **comparing populations of persistence diagrams coming from data sets of different types**. This is classically called the task of making inference on the basis of some collected data. It aims at offering two sets of functions for making inference:
+Comparing populations of persistence diagrams
 
-- in the space of persistence diagrams for testing whether multiple collections of persistence diagrams come from the same underlying distribution;
-- in functional spaces for localizing differences between multiple collections of persistence diagrams on the domain of some functional summary of them.
+- using permutation hypothesis testing;
+- involving several collections of persistence diagrams.
 :::
 
 ::: {.callout-tip title="Current features"}
-- `two_sample_diagram_test()`: a permutation test for comparing two collections of persistence diagrams based on the $p$-Wasserstein distance; this is achieved by permuting the rows and columns of the distance matrix to compute the empirical distribution of one or more test statistics based on inter-point distances [@lovato2021multiscale];
-- `two_sample_functional_test()`: a permutation test for comparing two collections of persistence diagrams based on some functional summary of them; this is achieved using the interval-wise testing procedure of @pini2017interval.
+- `two_sample_diagram_test()`: 
+
+    - permutation test for comparing **two** collections of persistence diagrams
+    - uses the $p$-Wasserstein distance;
+    - permutes the rows and columns of the distance matrix to compute the empirical distribution of one or more test statistics based on inter-point distances [@lovato2021multiscale];
+
+- `two_sample_functional_test()`:
+
+    - permutation test for comparing two collections of persistence diagrams **based on some functional summary** of them;
+    - achieved using the interval-wise testing procedure of @pini2017interval.
 :::
 
-## Inference: {fdatest} and {inphr}
+## Dependencies
 
 ![A schematic view of {inphr}'s dependencies.](images/inphr-deps.png){fig-align="center" width="80%"}
 
-## Inference: {fdatest} and {inphr}
+## Simulated point clouds
 
-::: {.callout-note title="Simulated point clouds"}
 We illustrate the use of {inphr} for comparing two collections of 24 persistence diagrams computed from point clouds sampled along the same archimedean spiral with different amounts of noise.
 
 ```{r}
@@ -995,11 +1002,9 @@ patchwork::wrap_plots(
 ) +
   patchwork::plot_layout(widths = c(rep(1, 5), 0.2))
 ```
-:::
 
-## Inference: {fdatest} and {inphr}
+## From point clouds to diagrams
 
-::: {.callout-note title="Corresponding persistence diagrams"}
 We compute the Vietoris-Rips persistence diagrams up to dimension 1 and scale 2 for each point cloud using `TDA::ripsDiag()`. We then visualize 5 persistence diagrams from each collection using {ggtda}.
 
 ```{r}
@@ -1083,15 +1088,12 @@ patchwork::wrap_plots(
   patchwork::plot_layout(guides = "collect", widths = c(rep(1, 5), 0.2)) &
   theme(legend.position = "bottom")
 ```
-:::
 
-## Inference: {fdatest} and {inphr}
+## Two-sample diagram test
 
-::: {.callout-note title="Two-sample diagram test"}
+We illustrate hypothesis testing in the space of persistence diagrams.
 
-:::: {.columns}
-
-::: {.column width="50%"}
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| eval: false
 diag_test_dim0 <- two_sample_diagram_test( # <1>
@@ -1102,9 +1104,15 @@ diag_test_dim0 <- two_sample_diagram_test( # <1>
 )
 ```
 1. By default, it uses the 2-Wasserstein distance, test statistics based on pairwise distances that mimic Student and Fisher statistics proposed by @lovato2021multiscale and 1000 permutations.
+
+```{r}
+#| echo: false
+diag_test_dim0 <- readRDS("data/diag_test_dim0.rds")
+diag_test_dim0
+```
 :::
 
-::: {.column width="50%"}
+::: {.fragment .fade-in-then-semi-out}
 ```{r}
 #| eval: false
 diag_test_dim1 <- two_sample_diagram_test(
@@ -1114,70 +1122,51 @@ diag_test_dim1 <- two_sample_diagram_test(
   ncores = 12
 )
 ```
-:::
-
-::::
 
 ```{r}
 #| echo: false
-#| layout-ncol: 2
-diag_test_dim0 <- readRDS("data/diag_test_dim0.rds")
-diag_test_dim0
 diag_test_dim1 <- readRDS("data/diag_test_dim1.rds")
 diag_test_dim1
 ```
 :::
 
-::: {.callout-note title="Two-sample functional test"}
+::: {.fragment .fade-in-then-semi-out}
+- No loss of information when comparing persistence diagrams directly;
+- However, interpretation of results is not straightforward, only a global p-value is provided.
+:::
 
-:::: {.columns}
-::: {.column width="50%"}
+## Two-sample functional test
+
+We illustrate hypothesis testing based on Betti curve summary of persistence diagrams in homological dimension 1.
+
 ```{r}
 #| eval: false
-func_test_dim0 <- two_sample_functional_test( # <1>
+func_test_dim1 <- two_sample_functional_test( # <1>
   x = low_noise_pers,      # First sample of persistence diagrams
   y = high_noise_pers,     # Second sample of persistence diagrams
-  dimension = 0,           # Homological dimension to consider
+  dimension = 1,           # Homological dimension to consider
   representation = "betti" # Functional summary to use
 )
 ```
 1. By default, it uses Betti curves as functional summaries on a common grid of 100 points spanning the range of filtration values observed in both samples, the interval-wise testing procedure of @pini2017interval with 1000 permutations and adjusts p-values to control the family-wise error rate using the closed testing procedure.
-:::
-::: {.column width="50%"}
-```{r}
-#| eval: false
-func_test_dim1 <- two_sample_functional_test(
-  x = low_noise_pers,
-  y = high_noise_pers,
-  dimension = 1,
-  representation = "betti"
-)
-```
-:::
-::::
 
 ```{r}
 #| echo: false
 #| label: fig-inphr-functional-test
 #| fig-cap: "Results of the two-sample functional test based on Betti curves."
 #| fig-subcap:
-#|   - "Dimension 0<br>Betti curves"
-#|   - "Dimension 0<br>Adjusted p-values"
-#|   - "Dimension 1<br>Betti curves"
-#|   - "Dimension 1<br>Adjusted p-values"
+#|   - "Betti curves"
+#|   - "Adjusted p-values"
 #| out-width: "70%"
 #| fig-align: center
 #| results: hold
-#| layout-ncol: 4
+#| layout-ncol: 2
 library(fdatest)
 oldpar <- par(oma = rep(0, 4))
-func_test_dim0 <- readRDS("data/func_test_dim0.rds")
-plot(func_test_dim0$iwt)
 func_test_dim1 <- readRDS("data/func_test_dim1.rds")
 plot(func_test_dim1$iwt)
 par(oldpar)
 ```
-:::
 
 # Invitations
 
@@ -1186,8 +1175,6 @@ par(oldpar)
 ![](images/tdaverse-and-other-universes.png){fig-align="center" width="80%"}
 
 ## Future developments
-
-::: {.callout-note title="Ongoing ideas"}
 
 Packages in development
 
@@ -1205,10 +1192,23 @@ Packages in limbo
 
 : - {Mapper}: R6 classes for mapper constructions
 - {Cover}: R6 classes for topological covers
-:::
 
-::: {.callout-tip title="Contributing to the TDAverse"}
-Most packages are listed under the [TDAverse GitHub organisation](https://github.com/tdaverse). If you want to contribute to the development of any of these packages, please contact the maintainers via GitHub issues or email to report bugs, request features, suggest improvements, or propose contributions via pull requests.
-:::
+## Concluding remarks
 
-## References
+<hr>
+
+Contributing to the TDAverse
+
+: - TDAverse GitHub organisation: 
+
+: <https://github.com/tdaverse> 
+
+: - Contact maintainers via GitHub issues or email to report bugs, request features, suggest improvements, or propose contributions via pull requests.
+
+<hr>
+
+Acknowledgments
+
+: This work was funded by [an ISC grant from the R Consortium](https://r-consortium.org/all-projects/2024-group-1.html#modular-interoperable-and-extensible-topological-data-analysis-in-r) that we would like to gratefully acknowledge.
+
+## References {visibility="hidden"}
