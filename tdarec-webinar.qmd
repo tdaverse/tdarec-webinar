@@ -836,7 +836,7 @@ par(op)
 #| results: hold
 blackholes <- tibble(
   name = c("Powehi", "Sgr A*"),
-  img = list(powehi, sagAstar)
+  img = list(1-powehi, 1-sagAstar)
 )
 recipe(name ~ ., data = blackholes) |> 
   update_role(img, new_role = "raw data") |> 
