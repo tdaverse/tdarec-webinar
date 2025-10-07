@@ -1278,7 +1278,7 @@ Contributing to the TDAverse
 
 : <https://github.com/tdaverse> 
 
-: - Contact maintainers via GitHub issues or email to report bugs, request features, suggest improvements, or propose contributions via pull requests.
+: - Issues? Ideas? Please contact us!
 
 <hr>
 
