@@ -696,9 +696,134 @@ Current features:
 :::
 
 ::: {layout-ncol="2"}
-![](images/title-bauer2021.jpg)
+![](images/tdarec-readme.png)
 
-![](images/title-kaji2020.jpg)
+![](images/tdarec-vignette.png)
+:::
+
+## Recipe steps
+
+::: {.fragment .semi-fade-out}
+```{r}
+#| output-location: column
+#| results: hold
+library(ripserr)
+library(tidymodels)
+library(tdarec)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+#| echo: !expr c(2,3)
+op <- par(mfrow = c(1, 2), mar = c(1, 1, 1, 1) + 0.1)
+image(powehi, 
+  col = hcl.colors(
+    256, palette = "inferno", alpha = NULL,
+    rev = FALSE, fixup = TRUE
+  ), axes = FALSE, asp = 1)
+image(sagAstar, 
+  col = hcl.colors(
+    256, palette = "inferno", alpha = NULL,
+    rev = FALSE, fixup = TRUE
+  ), axes = FALSE, asp = 1)
+par(op)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+blackholes <- tibble(
+  name = c("Powehi", "Sgr A*"),
+  img = list(powehi, sagAstar)
+)
+recipe(name ~ ., data = blackholes) |> 
+  update_role(img, new_role = "raw data") |> 
+  print() -> bh_rec0
+bh_rec0 |> 
+  prep() |> 
+  bake(new_data = blackholes)
+```
+:::
+
+## Recipe steps
+
+::: {.fragment .semi-fade-out}
+```{r}
+#| output-location: column
+#| results: hold
+( bh_rec1 <- step_pd_raster(bh_rec0, img) )
+bh_rec1 |> 
+  prep() |> 
+  bake(new_data = blackholes)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+#| echo: !expr c(2,3,4)
+op <- par(mfrow = c(1, 2), mar = c(2, 4, 2, 2) + 0.1)
+bh_bake1 <- bake(prep(bh_rec1), new_data = blackholes)
+TDA:::plot.diagram(bh_bake1$img[[1]], asp = 1)
+TDA:::plot.diagram(bh_bake1$img[[2]], asp = 1)
+par(op)
+```
+:::
+
+## Recipe steps
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+bh_rec2 <- step_vpd_tent_template_functions(
+  bh_rec1, img,
+  hom_degree = 1, tent_shift = tune()
+)
+bh_rec2 |> 
+  finalize_recipe(list(tent_shift = 10)) |> 
+  prep() |> 
+  bake(new_data = blackholes)
+```
+:::
+
+## Tunable dials
+
+::: {.fragment .semi-fade-out}
+```{r}
+#| output-location: column
+#| results: hold
+extract_parameter_set_dials(bh_rec1)
+extract_parameter_set_dials(bh_rec2)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+ts_fin <- finalize(
+  tent_shift(),
+  prep(bh_rec1) |> 
+    bake(new_data = blackholes) |> 
+    select(img)
+)
+print(ts_fin)
+```
+:::
+
+::: {.fragment .fade-in-then-semi-out}
+```{r}
+#| output-location: column
+#| results: hold
+grid_regular(ts_fin, levels = 5)
+```
 :::
 
 ## Collaborators
@@ -720,7 +845,7 @@ Current features:
 :::
 ::::
 
-## Inference: {fdatest} and {inphr}
+## Inference: {inphr}
 
 # Invitations
 
