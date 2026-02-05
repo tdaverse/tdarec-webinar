@@ -276,6 +276,7 @@ Current features:
 We compare the results and runtimes of 3 engines on a non-trivial point cloud:
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
@@ -284,79 +285,106 @@ library(ripserr)
 library(ggplot2)
 set.seed(860294)
 x <- tdaunif::sample_klein_flat(
-  n = 120, ar = 1.5, sd = .1
+  n = 120,
+  ar = 1.5,
+  sd = .1
 )
 r_max <- max(dist(x)) / 2 + .001
 pairs(x, asp = 1)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 #| echo: !expr c(1,2,3,5,6)
 x.diagram <- TDA::ripsDiag(
-  x, maxdimension = 2, maxscale = r_max
+  x,
+  maxdimension = 2,
+  maxscale = r_max
 )
 x.phom <- vietoris_rips(
-  x, max_dim = 2, threshold = r_max
+  x,
+  max_dim = 2,
+  threshold = r_max
 )
 old_par <- par(mfrow = c(1, 2))
 TDA:::plot.diagram(
-  x.diagram$diagram, asp = 1, diagLim = c(0, 2)
+  x.diagram$diagram,
+  asp = 1,
+  diagLim = c(0, 2)
 )
 TDA:::plot.diagram(
-  x.phom, asp = 1, diagLim = c(0, 2)
+  x.phom,
+  asp = 1,
+  diagLim = c(0, 2)
 )
 par(old_par)
 ```
+
 :::
 
 ## Validation and benchmark
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 vr_bench <- bench::mark(
   `Dionysus | TDA` = TDA::ripsDiag(
-    x, maxdimension = 2, maxscale = r_max,
+    x,
+    maxdimension = 2,
+    maxscale = r_max,
     library = "Dionysus"
   ),
   `GUDHI | TDA` = TDA::ripsDiag(
-    x, maxdimension = 2, maxscale = r_max,
+    x,
+    maxdimension = 2,
+    maxscale = r_max,
     library = "GUDHI"
   ),
   `Ripser | ripserr` = vietoris_rips(
-    x, max_dim = 2, threshold = r_max
+    x,
+    max_dim = 2,
+    threshold = r_max
   ),
-  min_iterations = 6, check = FALSE
+  min_iterations = 6,
+  check = FALSE
 )
 vr_bench |> subset(select = c(1, 3:5))
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 autoplot(vr_bench)
 ```
+
 :::
 
 ## Use case
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 str(ldeaths)
 frequency(ldeaths)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
@@ -365,23 +393,29 @@ frequency(ldeaths)
 op <- par(mar = c(2, 4, 2, 2) + 0.1)
 plot(ldeaths, xlab = NULL)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-ldeaths_swe <- 
+ldeaths_swe <-
   ripserr:::numeric_vector_to_quasi_attractor(
     ldeaths,
-    data_dim = 12, dim_lag = 1, sample_lag = 1
+    data_dim = 12,
+    dim_lag = 1,
+    sample_lag = 1
   )
 ldeaths_pca <- prcomp(ldeaths_swe)$x
-( ldeaths_ph <- vietoris_rips(ldeaths) )
+(ldeaths_ph <- vietoris_rips(ldeaths))
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
@@ -390,6 +424,7 @@ par(mfrow = c(1, 2), mar = c(2, 4, 2, 2) + 0.1)
 plot(ldeaths_pca[, 1:2], asp = 1)
 TDA:::plot.diagram(ldeaths_ph, asp = 1)
 ```
+
 :::
 
 ## Upgrades
@@ -443,48 +478,64 @@ Current features:
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 library(phutil) # <1>
 ```
-1. The package contains data sets for demonstration and testing purposes such as `arch_spirals`, a list of 24 persistence diagrams computed from samples of points in the plane forming two interlocking spirals.
+
+1. The package contains data sets for demonstration and testing purposes such as `
+arch_spirals
+`, a list of 24 persistence diagrams computed from samples of points in the plane forming two interlocking spirals.
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(arch_spirals[[1]]) # <2>
 ```
+
 2. Each element in `arch_spirals` is of class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 names(arch_spirals[[1]]) # <3>
 ```
+
 3. A persistence object is a list with two elements: `pairs` and `metadata`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 str(arch_spirals[[1]]$pairs) # <4>
 ```
+
 4. The `pairs` element is a list of matrices containing birth-death pairs for each homological dimension.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 str(arch_spirals[[1]]$metadata) # <5>
 ```
+
 5. The `metadata` element is a list containing information about how the data was computed.
+
 :::
 
 ## Handling persistence objects
@@ -492,34 +543,43 @@ str(arch_spirals[[1]]$metadata) # <5>
 Coerce persistence objects **to** other common formats:
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 arch_spirals[[1]] # <1>
 ```
+
 1. Print a persistence object. Calls the `print()` method which in turn calls `format()`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-arch_spirals[[1]] |> 
+arch_spirals[[1]] |>
   as.matrix() |> # <2>
   head()
 ```
+
 2. Coerce a persistence object to a matrix.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-arch_spirals[[1]] |> 
+arch_spirals[[1]] |>
   as.data.frame() |> # <3>
   head()
 ```
-3. Coerce a persistence object to a data.frame.
+
+3. Coerce a persistence object to a `data.frame`.
+
 :::
 
 ## Handling persistence objects
@@ -527,70 +587,92 @@ arch_spirals[[1]] |>
 Coerce **from** objects of class 'diagram' produced by `TDA::*Diag()` functions, objects of class 'PHom' produced by `ripserr::vietoris_rips()` and objects of class 'hclust' produced by `stats::hclust()`.
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 library(TDA) # <1>
 ```
+
 1. Load the {TDA} package.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_spl <- torusUnif(300, a = 1.8, c = 5) # <2>
 ```
+
 2. Sample 300 points from a torus in $R^3$.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-torus_dgm <- ripsDiag( # <3>
-  torus_spl, 
-  maxdimension = 1, 
+torus_dgm <- ripsDiag(
+  # <3>
+  torus_spl,
+  maxdimension = 1,
   maxscale = 2
 )$diagram
 ```
+
 3. Compute the Vietoris-Rips persistence diagram up to dimension 1 and scale 2.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(torus_dgm) # <4>
 ```
+
 4. The output is of class 'diagram'.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers <- as_persistence(torus_dgm) # <5>
 ```
+
 5. Coerce the diagram to class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(torus_pers) # <6>
 ```
+
 6. The output is now of class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers # <7>
 ```
+
 7. Print the persistence object.
+
 :::
 
 ## Handling persistence objects {visibility="hidden"}
@@ -600,61 +682,80 @@ Dependencies: {cli} for pretty printing.
 We can coerce objects of class 'PHom' as produced by `ripserr::vietoris_rips()` to class `persistence`:
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 library(ripserr) # <1>
 ```
+
 1. Load the {ripserr} package.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-torus_dgm <- vietoris_rips( # <2>
-  torus_spl, 
-  dim = 1, 
+torus_dgm <- vietoris_rips(
+  # <2>
+  torus_spl,
+  dim = 1,
   thresh = 2
 )
 ```
+
 2. Compute the Vietoris-Rips persistence diagram up to dimension 1 and scale 2.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(torus_dgm) # <3>
 ```
+
 3. The output is of class 'PHom'.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers <- as_persistence(torus_dgm) # <4>
 ```
+
 4. Coerce the diagram to class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(torus_pers) # <5>
 ```
+
 5. The output is now of class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers # <6>
 ```
+
 6. Print the persistence object.
+
 :::
 
 ## Handling persistence objects {visibility="hidden"}
@@ -664,64 +765,83 @@ Dependencies: {cli} for pretty printing.
 We can coerce objects of class 'hclust' as produced by `stats::hclust()` to class `persistence`:
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 library(stats) # <1>
 ```
+
 1. Load the {stats} package.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 hc <- hclust(dist(torus_spl)) # <2>
 ```
+
 2. Compute a hierarchical clustering of the torus sample.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(hc) # <3>
 ```
+
 3. The output is of class 'hclust'.
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers <- as_persistence(hc) # <4>
 ```
+
 4. Coerce the hierarchical clustering to class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 class(torus_pers) # <5>
 ```
+
 5. The output is now of class `persistence`.
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 torus_pers # <6>
 ```
+
 6. Print the persistence object.
+
 :::
 
 ## Distances between diagrams
 
 ::: {.callout-note title="Dependencies"}
 - [*Hera*](https://github.com/anigmetov/hera) C++ library **bundled** within {phutil};
-- [{BH}](https://dirk.eddelbuettel.com/code/bh.html) as a `LinkingTo` dependency for providing access to the Boost headers for built-in Hera compilation.
+- [{BH}](https://dirk.eddelbuettel.com/code/bh.html) as a `
+LinkingTo
+` dependency for providing access to the Boost headers for built-in Hera compilation.
 - [OpenMP](https://www.openmp.org/) for parallelization (optional; enabled at installation if available).
 :::
 
@@ -808,6 +928,7 @@ Current features:
 ## Recipe steps
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
@@ -816,60 +937,82 @@ library(ripserr)
 library(tidymodels)
 library(tdarec)
 op <- par(mfrow = c(1, 2), mar = c(1, 1, 1, 1) + 0.1)
-image(powehi, 
+image(
+  powehi,
   col = hcl.colors(
-    256, palette = "inferno", alpha = NULL,
-    rev = FALSE, fixup = TRUE
-  ), axes = FALSE, asp = 1)
-image(sagAstar, 
+    256,
+    palette = "inferno",
+    alpha = NULL,
+    rev = FALSE,
+    fixup = TRUE
+  ),
+  axes = FALSE,
+  asp = 1
+)
+image(
+  sagAstar,
   col = hcl.colors(
-    256, palette = "inferno", alpha = NULL,
-    rev = FALSE, fixup = TRUE
-  ), axes = FALSE, asp = 1)
+    256,
+    palette = "inferno",
+    alpha = NULL,
+    rev = FALSE,
+    fixup = TRUE
+  ),
+  axes = FALSE,
+  asp = 1
+)
 par(op)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 blackholes <- tibble(
   name = c("Powehi", "Sgr A*"),
-  img = list(1-powehi, 1-sagAstar)
+  img = list(1 - powehi, 1 - sagAstar)
 )
-recipe(name ~ ., data = blackholes) |> 
-  update_role(img, new_role = "raw data") |> 
+recipe(name ~ ., data = blackholes) |>
+  update_role(img, new_role = "raw data") |>
   print() -> bh_rec0
-bh_rec0 |> 
-  prep() |> 
+bh_rec0 |>
+  prep() |>
   bake(new_data = blackholes)
 ```
+
 :::
 
 ## Recipe steps
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-bh_rec0 |> 
-  step_pd_raster(img) |> 
+bh_rec0 |>
+  step_pd_raster(img) |>
   print() -> bh_rec1
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-bh_rec1 |> 
-  prep() |> 
+bh_rec1 |>
+  prep() |>
   bake(new_data = blackholes)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
@@ -881,72 +1024,86 @@ TDA:::plot.diagram(bh_bake1$img[[1]], asp = 1)
 TDA:::plot.diagram(bh_bake1$img[[2]], asp = 1)
 par(op)
 ```
+
 :::
 
 ## Recipe steps
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-bh_rec1 |> 
+bh_rec1 |>
   step_vpd_tent_template_functions(
     img,
-    hom_degree = 1, tent_shift = tune()
-  ) |> 
+    hom_degree = 1,
+    tent_shift = tune()
+  ) |>
   print() -> bh_rec2
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
-bh_rec2 |> 
-  finalize_recipe(list(tent_shift = 10)) |> 
-  prep() |> 
+bh_rec2 |>
+  finalize_recipe(list(tent_shift = 10)) |>
+  prep() |>
   bake(new_data = blackholes)
 ```
+
 :::
 
 ## Tunable dials
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 extract_parameter_set_dials(bh_rec1)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 extract_parameter_set_dials(bh_rec2)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 ts_fin <- finalize(
   tent_shift(),
-  prep(bh_rec1) |> 
-    bake(new_data = blackholes) |> 
+  prep(bh_rec1) |>
+    bake(new_data = blackholes) |>
     select(img)
 )
 print(ts_fin)
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| output-location: column
 #| results: hold
 grid_regular(ts_fin, levels = 5)
 ```
+
 :::
 
 ## Collaborators
@@ -992,6 +1149,7 @@ Comparing populations of persistence diagrams
 :::
 
 ::: {.callout-tip title="Current features"}
+
 - `two_sample_diagram_test()`: 
 
     - permutation test for comparing **two** collections of persistence diagrams
@@ -1002,6 +1160,7 @@ Comparing populations of persistence diagrams
 
     - permutation test for comparing two collections of persistence diagrams **based on some functional summary** of them;
     - achieved using the interval-wise testing procedure of @pini2017interval.
+
 :::
 
 ## Dependencies
@@ -1169,15 +1328,18 @@ patchwork::wrap_plots(
 We illustrate hypothesis testing in the space of persistence diagrams.
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| eval: false
-diag_test_dim0 <- two_sample_diagram_test( # <1>
-  x = low_noise_pers,  # First sample of persistence diagrams
+diag_test_dim0 <- two_sample_diagram_test(
+  # <1>
+  x = low_noise_pers, # First sample of persistence diagrams
   y = high_noise_pers, # Second sample of persistence diagrams
-  dimension = 0,       # Homological dimension to consider
-  ncores = 12          # Number of CPU cores to use
+  dimension = 0, # Homological dimension to consider
+  ncores = 12 # Number of CPU cores to use
 )
 ```
+
 1. By default, it uses the 2-Wasserstein distance, test statistics based on pairwise distances that mimic Student and Fisher statistics proposed by @lovato2021multiscale and 1000 permutations.
 
 ```{r}
@@ -1185,9 +1347,11 @@ diag_test_dim0 <- two_sample_diagram_test( # <1>
 diag_test_dim0 <- readRDS("data/diag_test_dim0.rds")
 diag_test_dim0
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
+
 ```{r}
 #| eval: false
 diag_test_dim1 <- two_sample_diagram_test(
@@ -1203,6 +1367,7 @@ diag_test_dim1 <- two_sample_diagram_test(
 diag_test_dim1 <- readRDS("data/diag_test_dim1.rds")
 diag_test_dim1
 ```
+
 :::
 
 ::: {.fragment .fade-in-then-semi-out}
@@ -1216,13 +1381,15 @@ We illustrate hypothesis testing based on Betti curve summary of persistence dia
 
 ```{r}
 #| eval: false
-func_test_dim1 <- two_sample_functional_test( # <1>
-  x = low_noise_pers,      # First sample of persistence diagrams
-  y = high_noise_pers,     # Second sample of persistence diagrams
-  dimension = 1,           # Homological dimension to consider
+func_test_dim1 <- two_sample_functional_test(
+  # <1>
+  x = low_noise_pers, # First sample of persistence diagrams
+  y = high_noise_pers, # Second sample of persistence diagrams
+  dimension = 1, # Homological dimension to consider
   representation = "betti" # Functional summary to use
 )
 ```
+
 1. By default, it uses Betti curves as functional summaries on a common grid of 100 points spanning the range of filtration values observed in both samples, the interval-wise testing procedure of @pini2017interval with 1000 permutations and adjusts p-values to control the family-wise error rate using the closed testing procedure.
 
 ```{r}
