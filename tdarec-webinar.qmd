@@ -401,6 +401,7 @@ plot(ldeaths, xlab = NULL)
 ```{r}
 #| output-location: column
 #| results: hold
+#| eval: false
 ldeaths_swe <-
   ripserr:::numeric_vector_to_quasi_attractor(
     ldeaths,
@@ -420,6 +421,7 @@ ldeaths_pca <- prcomp(ldeaths_swe)$x
 #| output-location: column
 #| results: hold
 #| echo: !expr c(2,3)
+#| eval: false
 par(mfrow = c(1, 2), mar = c(2, 4, 2, 2) + 0.1)
 plot(ldeaths_pca[, 1:2], asp = 1)
 TDA:::plot.diagram(ldeaths_ph, asp = 1)
